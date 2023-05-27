@@ -94,4 +94,24 @@ class PersonRepositoryImplTest {
 
         fionaMono.subscribe(person -> System.out.println(person.getFirstName()));
     }
+
+    //single() method does create an error for us, while the next() doesn't
+    @Test
+    void testFindPersonByIdNotFound() {
+        Flux<Person> personFlux = personRepository.findAll();
+
+        final Integer id = 8;
+        Mono<Person> personMono = personFlux.filter(person -> person.getId() == id).single()
+                .doOnError(throwable -> {
+                    System.out.println("Error occurred in flux");
+                    System.out.println(throwable.toString());
+                });
+
+        personMono.subscribe(person -> {
+            System.out.println(person.toString());
+        }, throwable -> {
+            System.out.println("Error occurred in the mono");
+            System.out.println(throwable.toString());
+        });
+    }
 }
